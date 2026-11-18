@@ -64,7 +64,8 @@ def title_of(stem: str) -> str:
     if stem in TITLES:
         return TITLES[stem]
     return " ".join(
-        word if i == 0 or word.isupper() else word.lower() for i, word in enumerate(stem.split("-"))
+        word if i == 0 or word.isupper() else word.lower()
+        for i, word in enumerate(stem.split("-"))
     )
 
 
@@ -94,7 +95,9 @@ def link(src: str, dest: str) -> str:
 
 
 def cmark(markdown: str) -> str:
-    result = subprocess.run(CMARK, input=markdown.encode(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = subprocess.run(
+        CMARK, input=markdown.encode(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     if result.returncode:
         sys.stderr.write(result.stderr.decode())
         sys.exit(f"cmark-gfm failed with status {result.returncode}")
@@ -131,7 +134,10 @@ def heading_ids(document: str) -> str:
 
 def render(markdown: str, src: str) -> str:
     document = alerts(heading_ids(cmark(markdown)))
-    return HREF.sub(lambda match: f'href="{html.escape(link(src, match.group(1)), quote=True)}"', document)
+    return HREF.sub(
+        lambda match: f'href="{html.escape(link(src, match.group(1)), quote=True)}"',
+        document,
+    )
 
 
 def fill(template: str, values: dict[str, str]) -> str:
@@ -150,7 +156,14 @@ def nav(stems: list[str], src: str, current: str | None) -> str:
     return "\n".join(items)
 
 
-def page(template: str, stems: list[str], slug: str, current: str | None, body: str, title: str) -> str:
+def page(
+    template: str,
+    stems: list[str],
+    slug: str,
+    current: str | None,
+    body: str,
+    title: str,
+) -> str:
     prefix = "" if slug == "" else "../"
     return fill(
         template,
@@ -185,12 +198,16 @@ def main() -> None:
         name = title_of(stem)
         body = render(pages[stem], slug)
         if "<h1" not in body:
-            heading = "Universal Android Debloater Next Generation" if slug == "" else name
+            heading = (
+                "Universal Android Debloater Next Generation" if slug == "" else name
+            )
             body = f"<h1>{html.escape(heading)}</h1>\n{body}"
         title = "UAD-ng" if slug == "" else f"{name} — UAD-ng"
         dest = out / "index.html" if slug == "" else out / slug / "index.html"
         dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(page(template, stems, slug, slug, body, title), encoding="utf-8")
+        dest.write_text(
+            page(template, stems, slug, slug, body, title), encoding="utf-8"
+        )
 
     (out / "404.html").write_text(
         page(

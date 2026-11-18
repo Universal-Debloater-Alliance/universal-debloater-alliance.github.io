@@ -6,3 +6,4 @@ The documentation site is built from the project wiki four times a day. [Website
 
 - `nix run` serves the site at <http://127.0.0.1:8080/>.
 - `nix build` generates the static site in `result/`.
+- `nix fmt` formats the source files.

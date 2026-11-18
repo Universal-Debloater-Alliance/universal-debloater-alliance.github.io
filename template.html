@@ -1,87 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#282A36">
-  <title>@@TITLE@@</title>
-  <meta name="description" content="Documentation for Universal Android Debloater Next Generation.">
-  <link rel="icon" href="@@LOGO@@" type="image/png">
-  <link rel="stylesheet" href="@@CSS@@">
-</head>
-<body>
-  <a class="skip" href="#content">Skip to content</a>
-  <header class="site-header">
-    <div class="bar">
-      <a class="brand" href="@@HOME@@">
-        <img src="@@LOGO@@" alt="" width="48" height="48">
-        <span>Universal Android Debloater<small>Next Generation</small></span>
-      </a>
-      <nav class="header-links" aria-label="Project">
-        <a href="https://github.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://discord.com/invite/CzwbMCPEZa" target="_blank" rel="noopener">Discord</a>
-        <a href="https://matrix.to/#/#uad-ng:matrix.org" target="_blank" rel="noopener">Matrix</a>
-        <a class="download" href="https://github.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation/releases/latest" target="_blank" rel="noopener">Download</a>
-      </nav>
-    </div>
-  </header>
-  <div class="layout">
-    <nav class="docs" aria-label="Documentation">
-      <button type="button" class="docs-toggle" aria-expanded="false" aria-controls="docs-links" hidden>Sections</button>
-      <div class="docs-links" id="docs-links">
-        @@NAV@@
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#282A36" />
+    <title>@@TITLE@@</title>
+    <meta
+      name="description"
+      content="Documentation for Universal Android Debloater Next Generation."
+    />
+    <link rel="icon" href="@@LOGO@@" type="image/png" />
+    <link rel="stylesheet" href="@@CSS@@" />
+  </head>
+  <body>
+    <a class="skip" href="#content">Skip to content</a>
+    <header class="site-header">
+      <div class="bar">
+        <a class="brand" href="@@HOME@@">
+          <img src="@@LOGO@@" alt="" width="48" height="48" />
+          <span>Universal Android Debloater<small>Next Generation</small></span>
+        </a>
+        <nav class="header-links" aria-label="Project">
+          <a
+            href="https://github.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation"
+            target="_blank"
+            rel="noopener"
+            >GitHub</a
+          >
+          <a href="https://discord.com/invite/CzwbMCPEZa" target="_blank" rel="noopener">Discord</a>
+          <a href="https://matrix.to/#/#uad-ng:matrix.org" target="_blank" rel="noopener">Matrix</a>
+          <a
+            class="download"
+            href="https://github.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation/releases/latest"
+            target="_blank"
+            rel="noopener"
+            >Download</a
+          >
+        </nav>
       </div>
-    </nav>
-    <main id="content" class="prose">
-      @@CONTENT@@
-    </main>
-  </div>
-  <footer class="site-footer">
-    <div class="bar">
-      <p>Use at your own risk. Removing the wrong system package can bootloop a device.</p>
+    </header>
+    <div class="layout">
+      <nav class="docs" aria-label="Documentation">
+        <button
+          type="button"
+          class="docs-toggle"
+          aria-expanded="false"
+          aria-controls="docs-links"
+          hidden
+        >
+          Sections
+        </button>
+        <div class="docs-links" id="docs-links">@@NAV@@</div>
+      </nav>
+      <main id="content" class="prose">@@CONTENT@@</main>
     </div>
-  </footer>
-  <script>
-    const sectionsToggle = document.querySelector(".docs-toggle");
-    const currentSection = document.querySelector('.docs-links [aria-current="page"]')?.textContent;
-    if (currentSection) {
-      sectionsToggle.textContent = currentSection;
-      sectionsToggle.setAttribute("aria-label", `${currentSection}, browse sections`);
-    }
-    sectionsToggle.addEventListener("click", () => {
-      const isOpen = sectionsToggle.getAttribute("aria-expanded") === "true";
-      sectionsToggle.setAttribute("aria-expanded", String(!isOpen));
-    });
-    sectionsToggle.hidden = false;
-
-    const icon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
-    const copyIcon = icon + '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
-    const copiedIcon = icon + '<path d="M20 6 9 17l-5-5"/></svg>';
-    for (const pre of document.querySelectorAll("pre")) {
-      const block = document.createElement("div");
-      block.className = "codeblock";
-      pre.before(block);
-      block.append(pre);
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "copy";
-      button.setAttribute("aria-label", "Copy");
-      button.innerHTML = copyIcon;
-      button.addEventListener("click", async () => {
-        const code = pre.querySelector("code") || pre;
-        await navigator.clipboard.writeText(code.innerText.replace(/\n$/, ""));
-        button.innerHTML = copiedIcon;
-        button.classList.add("copied");
-        button.setAttribute("aria-label", "Copied");
-        setTimeout(() => {
-          button.innerHTML = copyIcon;
-          button.classList.remove("copied");
-          button.setAttribute("aria-label", "Copy");
-        }, 1200);
+    <footer class="site-footer">
+      <div class="bar">
+        <p>Use at your own risk. Removing the wrong system package can bootloop a device.</p>
+      </div>
+    </footer>
+    <script>
+      const sectionsToggle = document.querySelector(".docs-toggle");
+      const currentSection = document.querySelector(
+        '.docs-links [aria-current="page"]',
+      )?.textContent;
+      if (currentSection) {
+        sectionsToggle.textContent = currentSection;
+        sectionsToggle.setAttribute("aria-label", `${currentSection}, browse sections`);
+      }
+      sectionsToggle.addEventListener("click", () => {
+        const isOpen = sectionsToggle.getAttribute("aria-expanded") === "true";
+        sectionsToggle.setAttribute("aria-expanded", String(!isOpen));
       });
-      block.append(button);
-    }
-  </script>
-</body>
+      sectionsToggle.hidden = false;
+
+      const icon =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+      const copyIcon =
+        icon +
+        '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+      const copiedIcon = icon + '<path d="M20 6 9 17l-5-5"/></svg>';
+      for (const pre of document.querySelectorAll("pre")) {
+        const block = document.createElement("div");
+        block.className = "codeblock";
+        pre.before(block);
+        block.append(pre);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "copy";
+        button.setAttribute("aria-label", "Copy");
+        button.innerHTML = copyIcon;
+        button.addEventListener("click", async () => {
+          const code = pre.querySelector("code") || pre;
+          await navigator.clipboard.writeText(code.innerText.replace(/\n$/, ""));
+          button.innerHTML = copiedIcon;
+          button.classList.add("copied");
+          button.setAttribute("aria-label", "Copied");
+          setTimeout(() => {
+            button.innerHTML = copyIcon;
+            button.classList.remove("copied");
+            button.setAttribute("aria-label", "Copy");
+          }, 1200);
+        });
+        block.append(button);
+      }
+    </script>
+  </body>
 </html>

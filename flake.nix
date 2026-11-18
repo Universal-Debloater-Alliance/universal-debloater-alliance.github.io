@@ -20,7 +20,45 @@
         );
     in
     {
-      formatter = forSystems (pkgs: pkgs.nixfmt-tree);
+      formatter = forSystems (
+        pkgs:
+        pkgs.treefmt.withConfig {
+          runtimeInputs = with pkgs; [
+            git
+            nixfmt
+            ruff
+            oxfmt
+          ];
+          settings = {
+            tree-root-file = "flake.nix";
+            walk = "git";
+            formatter = {
+              nix = {
+                command = "nixfmt";
+                includes = [ "*.nix" ];
+              };
+              python = {
+                command = "ruff";
+                options = [ "format" ];
+                includes = [ "*.py" ];
+              };
+              web = {
+                command = "oxfmt";
+                options = [ "--write" ];
+                includes = [
+                  "*.css"
+                  "*.html"
+                  "*.js"
+                  "*.json"
+                  "*.md"
+                  "*.yaml"
+                  "*.yml"
+                ];
+              };
+            };
+          };
+        }
+      );
 
       packages = forSystems (pkgs: {
         default = pkgs.stdenvNoCC.mkDerivation {
