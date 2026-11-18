@@ -199,9 +199,10 @@ a:hover { text-decoration-thickness: 2px; }
 }
 
 .codeblock {
+  --code-padding-block: 0.9rem;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
+  align-items: start;
   margin: 0.75rem 0;
   background: var(--code);
   border-radius: 0.6rem;
@@ -210,13 +211,14 @@ a:hover { text-decoration-thickness: 2px; }
 .prose .codeblock pre {
   margin: 0;
   background: transparent;
-  padding: 0.9rem 0.5rem 0.9rem 1rem;
+  padding: var(--code-padding-block) 0.5rem var(--code-padding-block) 1rem;
 }
 
 .copy {
+  font: inherit;
   width: 2rem;
   height: 2rem;
-  margin: 0.35rem;
+  margin: calc(var(--code-padding-block) + 0.5lh - 1rem) 0.35rem 0;
   padding: 0.35rem;
   border: 0;
   border-radius: 0.35rem;
