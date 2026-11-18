@@ -4,12 +4,10 @@ from __future__ import annotations
 
 import html
 import re
-import shutil
 import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
 NAV = [
     "Home",
     "Getting-started",
@@ -168,9 +166,9 @@ def page(template: str, stems: list[str], slug: str, current: str | None, body: 
 
 
 def main() -> None:
-    if len(sys.argv) != 3:
-        sys.exit("usage: build.py WIKI OUT")
-    wiki, out = Path(sys.argv[1]), Path(sys.argv[2])
+    if len(sys.argv) != 4:
+        sys.exit("usage: build.py WIKI TEMPLATE OUT")
+    wiki, template_path, out = map(Path, sys.argv[1:])
     pages = {
         path.stem: path.read_text(encoding="utf-8")
         for path in wiki.glob("*.md")
@@ -180,15 +178,7 @@ def main() -> None:
         sys.exit(f"no markdown pages in {wiki}")
     rank = {stem: i for i, stem in enumerate(NAV)}
     stems = sorted(pages, key=lambda stem: (rank.get(stem, len(NAV)), stem.lower()))
-    template = (ROOT / "template.html").read_text(encoding="utf-8")
-    if out.exists():
-        shutil.rmtree(out)
-    out.mkdir(parents=True)
-    shutil.copyfile(ROOT / "assets" / "logo-dark.png", out / "logo.png")
-    shutil.copyfile(ROOT / "lupin.css", out / "lupin.css")
-    if (ROOT / "CNAME").is_file():
-        shutil.copyfile(ROOT / "CNAME", out / "CNAME")
-    (out / ".nojekyll").write_text("", encoding="utf-8")
+    template = template_path.read_text(encoding="utf-8")
 
     for stem in stems:
         slug = page_of(stem)

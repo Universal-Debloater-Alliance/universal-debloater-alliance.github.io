@@ -26,8 +26,8 @@
         default = pkgs.stdenvNoCC.mkDerivation {
           pname = "uad-ng-website";
           version = "0";
-
-          src = pkgs.lib.cleanSource ./.;
+          dontUnpack = true;
+          dontConfigure = true;
 
           nativeBuildInputs = with pkgs; [
             python3
@@ -35,20 +35,15 @@
           ];
 
           buildPhase = ''
-            runHook preBuild
-
-            python3 build.py ${wiki} dist
-
-            runHook postBuild
+            python3 ${./build.py} ${wiki} ${./template.html} dist
           '';
 
           installPhase = ''
-            runHook preInstall
-
-            mkdir -p $out
-            cp -r dist/. $out/
-
-            runHook postInstall
+            mkdir -p "$out"
+            cp -r dist/. "$out/"
+            install -m 644 ${./assets/logo-dark.png} "$out/logo.png"
+            install -m 644 ${./lupin.css} "$out/lupin.css"
+            touch "$out/.nojekyll"
           '';
         };
       });
@@ -57,9 +52,9 @@
         default = {
           type = "app";
           program = "${pkgs.writeShellScript "serve" ''
-            exec ${pkgs.python3}/bin/python3 -m http.server 8080 --directory ${
+            exec ${pkgs.lib.getExe pkgs.darkhttpd} ${
               self.packages.${pkgs.stdenv.hostPlatform.system}.default
-            }
+            } --addr 127.0.0.1 --port 8080 --no-listing
           ''}";
         };
       });

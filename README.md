@@ -1,13 +1,8 @@
 # UAD-ng
 
-The website at <https://universal-debloater-alliance.github.io/> is generated from the [wiki](https://github.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation/wiki).
+The documentation site is built from the project wiki four times a day. [Website](https://universal-debloater-alliance.github.io/) · [Wiki](https://github.com/Universal-Debloater-Alliance/universal-android-debloater-next-generation/wiki)
 
-It rebuilds four times a day.
+## Local development
 
-## Run locally
-
-```bash
-nix run
-```
-
-Open http://127.0.0.1:8080/.
+- `nix run` serves the site at <http://127.0.0.1:8080/>.
+- `nix build` generates the static site in `result/`.
