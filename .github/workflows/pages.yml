@@ -10,15 +10,18 @@ on:
     # The website is generated from the wiki. Rebuild four times a day.
     - cron: "17 0,6,12,18 * * *"
 
+permissions: {}
+
 jobs:
   tests:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pages: write
-      id-token: write
+      pages: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - uses: cachix/install-nix-action@v31
         with:
@@ -29,16 +32,17 @@ jobs:
           nix flake update wiki
           nix build
 
-      - uses: actions/configure-pages@v5
-        if: github.event_name != 'pull_request'
+      - uses: actions/configure-pages@v6
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
 
-      - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request'
+      - uses: actions/upload-pages-artifact@v5
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:
           path: result
+          include-hidden-files: true
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: tests
     runs-on: ubuntu-latest
     permissions:
@@ -50,4 +54,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
