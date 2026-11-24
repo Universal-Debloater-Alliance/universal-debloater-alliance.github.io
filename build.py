@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import html
+import json
 import re
 import subprocess
 import sys
+from dataclasses import dataclass, field
+from html.parser import HTMLParser
 from pathlib import Path
 
 NAV = [
@@ -140,6 +143,117 @@ def render(markdown: str, src: str) -> str:
     )
 
 
+@dataclass
+class SearchSection:
+    anchor: str = ""
+    label: list[str] = field(default_factory=list)
+    text: list[str] = field(default_factory=list)
+    tag: str = ""
+    position: tuple[int, int] | None = None
+
+
+class SearchContent(HTMLParser):
+    headings = frozenset({"h2", "h3", "h4", "h5", "h6", "summary"})
+    blocks = headings | {
+        "blockquote",
+        "br",
+        "dd",
+        "details",
+        "div",
+        "dl",
+        "dt",
+        "h1",
+        "hr",
+        "li",
+        "ol",
+        "p",
+        "pre",
+        "table",
+        "td",
+        "th",
+        "tr",
+        "ul",
+    }
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.section = SearchSection()
+        self.sections = [self.section]
+        self.disclosures: list[SearchSection] = []
+        self.label_tag = ""
+        self.ids: set[str] = set()
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attrs = dict(attrs)
+        if anchor := attrs.get("id"):
+            self.ids.add(anchor)
+        if tag == "details":
+            self.section.text.append(" ")
+            self.disclosures.append(self.section)
+        if tag in self.headings or tag == "details":
+            if tag != "summary" or self.section.tag != "details":
+                self.section = SearchSection()
+                self.sections.append(self.section)
+            self.section.anchor = anchor or ""
+            self.section.tag = tag
+            self.section.position = None
+            if "id" not in attrs:
+                line, column = self.getpos()
+                self.section.position = (line, column + len(tag) + 1)
+            if tag in self.headings:
+                self.label_tag = tag
+        elif tag in self.blocks:
+            self.handle_data(" ")
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == self.label_tag:
+            self.label_tag = ""
+        elif tag == "details" and self.disclosures:
+            self.section = self.disclosures.pop()
+        elif tag in self.blocks:
+            self.handle_data(" ")
+
+    def handle_data(self, data: str) -> None:
+        if self.label_tag:
+            self.section.label.append(data)
+        else:
+            self.section.text.append(data)
+
+    def index(self, body: str) -> tuple[str, list[dict[str, str]]]:
+        self.feed(body)
+        self.close()
+        line_offsets = [0, *(match.end() for match in re.finditer("\n", body))]
+        insertions = []
+        entries = []
+        for section in self.sections:
+            label = " ".join("".join(section.label).split())
+            text = " ".join("".join(section.text).split())
+            if section.tag == "details":
+                if not text:
+                    continue
+                label = "Details"
+            if section.position is not None:
+                base = slug(html.escape(label))
+                if section.tag == "summary":
+                    base = f"details-{base}"
+                section.anchor = base
+                suffix = 1
+                while section.anchor in self.ids:
+                    section.anchor = f"{base}-{suffix}"
+                    suffix += 1
+                self.ids.add(section.anchor)
+                line, column = section.position
+                insertions.append((line_offsets[line - 1] + column, section.anchor))
+            entries.append({"anchor": section.anchor, "title": label, "text": text})
+
+        # Patch only the missing IDs so the rendered content stays intact.
+        for offset, anchor in sorted(insertions, reverse=True):
+            body = (
+                f'{body[:offset]} id="{html.escape(anchor, quote=True)}"{body[offset:]}'
+            )
+        return body, entries
+
+
 def fill(template: str, values: dict[str, str]) -> str:
     for key, value in values.items():
         template = template.replace(f"@@{key}@@", value)
@@ -193,6 +307,7 @@ def main() -> None:
     stems = sorted(pages, key=lambda stem: (rank.get(stem, len(NAV)), stem.lower()))
     template = template_path.read_text(encoding="utf-8")
 
+    search_index = []
     for stem in stems:
         slug = page_of(stem)
         name = title_of(stem)
@@ -202,6 +317,10 @@ def main() -> None:
                 "Universal Android Debloater Next Generation" if slug == "" else name
             )
             body = f"<h1>{html.escape(heading)}</h1>\n{body}"
+        body, sections = SearchContent().index(body)
+        search_index.append(
+            {"url": f"{slug}/" if slug else "./", "title": name, "sections": sections}
+        )
         title = "UAD-ng" if slug == "" else f"{name} — UAD-ng"
         dest = out / "index.html" if slug == "" else out / slug / "index.html"
         dest.parent.mkdir(parents=True, exist_ok=True)
@@ -209,6 +328,10 @@ def main() -> None:
             page(template, stems, slug, slug, body, title), encoding="utf-8"
         )
 
+    (out / "search-index.json").write_text(
+        json.dumps(search_index, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
     (out / "404.html").write_text(
         page(
             template,

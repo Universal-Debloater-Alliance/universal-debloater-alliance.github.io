@@ -12,6 +12,7 @@
     />
     <link rel="icon" href="@@LOGO@@" type="image/png" />
     <link rel="stylesheet" href="@@CSS@@" />
+    <script src="@@HOME@@search.js" defer></script>
   </head>
   <body>
     <a class="skip" href="#content">Skip to content</a>
@@ -41,18 +42,33 @@
       </div>
     </header>
     <div class="layout">
-      <nav class="docs" aria-label="Documentation">
-        <button
-          type="button"
-          class="docs-toggle"
-          aria-expanded="false"
-          aria-controls="docs-links"
-          hidden
-        >
-          Sections
-        </button>
-        <div class="docs-links" id="docs-links">@@NAV@@</div>
-      </nav>
+      <div class="sidebar">
+        <div class="docs-search" role="search" hidden>
+          <input
+            type="search"
+            aria-label="Search docs"
+            placeholder="Search docs"
+            autocomplete="off"
+          />
+          <p class="search-announcement" role="status"></p>
+          <div class="search-results" hidden>
+            <p class="search-status" hidden></p>
+            <ul aria-label="Search results"></ul>
+          </div>
+        </div>
+        <nav class="docs" aria-label="Documentation">
+          <button
+            type="button"
+            class="docs-toggle"
+            aria-expanded="false"
+            aria-controls="docs-links"
+            hidden
+          >
+            Sections
+          </button>
+          <div class="docs-links" id="docs-links">@@NAV@@</div>
+        </nav>
+      </div>
       <main id="content" class="prose">@@CONTENT@@</main>
     </div>
     <footer class="site-footer">

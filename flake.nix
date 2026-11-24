@@ -81,6 +81,7 @@
             cp -r dist/. "$out/"
             install -m 644 ${./assets/logo-dark.png} "$out/logo.png"
             install -m 644 ${./lupin.css} "$out/lupin.css"
+            install -m 644 ${./search.js} "$out/search.js"
             touch "$out/.nojekyll"
           '';
         };
